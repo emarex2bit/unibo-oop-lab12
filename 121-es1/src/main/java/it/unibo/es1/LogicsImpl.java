@@ -1,5 +1,6 @@
 package it.unibo.es1;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,6 +9,8 @@ import java.util.List;
 public class LogicsImpl implements Logics {
 
     private static final String ERROR_MESSAGE = "Unimplemented method";
+    
+    private List<BtnData> btns;
 
     /**
      * Constructor.
@@ -15,7 +18,10 @@ public class LogicsImpl implements Logics {
      * @param size the size of the logics
      */
     public LogicsImpl(final int size) {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        this.btns = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            this.btns.add(new BtnData());
+        }
     }
 
     /**
@@ -23,7 +29,7 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public int size() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return this.btns.size();
     }
 
     /**
@@ -31,7 +37,10 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public List<Integer> values() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return this.btns
+            .stream()
+            .map(x -> x.value)
+            .toList();
     }
 
     /**
@@ -39,7 +48,10 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public List<Boolean> enabledStates() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return this.btns
+            .stream()
+            .map(x -> x.enabled)
+            .toList();
     }
 
     /**
@@ -47,7 +59,7 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public int hit(final int elem) {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return this.btns.get(elem).inc();
     }
 
     /**
@@ -55,7 +67,16 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public String result() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        StringBuilder stringBuilder = new StringBuilder("|");
+
+        this.btns.stream()
+            .map(x -> x.value)
+            .forEach( e -> 
+                {
+                    stringBuilder.append(e + "|");
+                });
+
+        return stringBuilder.toString();
     }
 
     /**
@@ -63,6 +84,19 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public boolean toQuit() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        Integer start = this.btns.get(0).value;
+        return this.btns.stream()
+            .allMatch(x -> x.value.equals(start));
+    }
+
+
+    private class BtnData
+    {
+        private boolean enabled = true;
+        private Integer value = 0;
+
+        public Integer inc() {
+            return ++this.value;
+        }
     }
 }
