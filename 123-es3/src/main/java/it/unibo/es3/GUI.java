@@ -16,6 +16,7 @@ public final class GUI extends JFrame {
     @Serial
     private static final long serialVersionUID = 1L;
     private final List<JButton> cells = new ArrayList<>();
+    private final Logics logics;
 
     /**
      * Constructor.
@@ -23,21 +24,45 @@ public final class GUI extends JFrame {
      * @param width the size of the grid
      */
     public GUI(final int width) {
+        logics = new LogicsImpl(width, width);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        // Create a panel with a grid layout
-        final JPanel panel = new JPanel(new GridLayout(width, width));
-        this.getContentPane().add(panel);
-        // Create buttons and add them to the panel
+
+        // Il frame usa BorderLayout di default → OK
+        final JPanel grid = new JPanel(new GridLayout(width, width));
+        this.getContentPane().add(grid, java.awt.BorderLayout.CENTER);
+
+        // Crea i bottoni della grid
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < width; j++) {
                 final var pos = new Pair<>(j, i);
                 final JButton button = new JButton(pos.toString());
                 this.cells.add(button);
-                button.addActionListener(e -> button.setText(String.valueOf(cells.indexOf(button))));
-                panel.add(button);
+                grid.add(button);
             }
         }
+
+        // Bottone NEXT STEP separato
+        final JButton nextStepButton = new JButton(">");
+        nextStepButton.addActionListener(e -> {
+            boolean[] flags = logics.update();
+            updateUI(flags);
+            if (logics.toQuit()) {
+                dispose();
+            }
+        });
+
+        // Lo aggiungo *sotto*, non nella grid
+        this.getContentPane().add(nextStepButton, java.awt.BorderLayout.SOUTH);
+
+        updateUI(logics.init());
+
         pack();
         this.setVisible(true);
+    }
+
+    private void updateUI(boolean[] flags) {
+        for (int i = 0; i < cells.size(); i++) {
+            cells.get(i).setText(flags[i] ? "*" : "");
+        }
     }
 }
